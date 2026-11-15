@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,14 +26,14 @@
             NASA MODIS SST (2003–2024) • Kd490 • GPM v07 • HydroBASINS
           </span>
         </h1>
-        <p class="text-xs text-slate-400">Giám sát phân bố thảm cỏ biển Đông Nam Á, áp lực từ lưu vực sông & cảnh báo bảo tồn</p>
+        <p class="text-xs text-slate-400">Monitoring Southeast Asia seagrass distribution, watershed pressures & conservation risk alerts</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button onclick="flyTo(8, 112, 4)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Toàn cảnh ĐNA</button>
-        <button onclick="flyTo(10.0, 104.5, 6)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Mekong & Vịnh Thái Lan</button>
-        <button onclick="flyTo(20.2, 107.5, 7)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Vịnh Bắc Bộ</button>
-        <button onclick="flyTo(3.0, 101.0, 6)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Eo biển Malacca</button>
-        <button onclick="exportCSV()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white">⬇ Xuất Cảnh Báo CSV</button>
+        <button onclick="flyTo(8, 112, 4)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">SEA Overview</button>
+        <button onclick="flyTo(10.0, 104.5, 6)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Mekong & Gulf of Thailand</button>
+        <button onclick="flyTo(20.2, 107.5, 7)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Gulf of Tonkin</button>
+        <button onclick="flyTo(3.0, 101.0, 6)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Strait of Malacca</button>
+        <button onclick="exportCSV()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white">⬇ Export Risk CSV</button>
       </div>
     </div>
   </header>
@@ -42,27 +42,27 @@
     <!-- KPI Strip -->
     <section class="grid grid-cols-2 lg:grid-cols-5 gap-4">
       <div class="glass p-4">
-        <div class="text-xs text-slate-400">Tổng Thảm Cỏ Biển (ĐNA)</div>
+        <div class="text-xs text-slate-400">Total Seagrass Polygons (SEA)</div>
         <div id="kpi-sg-count" class="text-2xl font-bold text-teal-400 mt-1">--</div>
         <div id="kpi-sg-area" class="text-xs text-slate-400 mt-1">-- km²</div>
       </div>
       <div class="glass p-4">
-        <div class="text-xs text-slate-400">Lưu Vực HydroBASINS</div>
+        <div class="text-xs text-slate-400">HydroBASINS Watersheds</div>
         <div id="kpi-ws-count" class="text-2xl font-bold text-sky-400 mt-1">--</div>
-        <div class="text-xs text-slate-400 mt-1">Ranh giới thủy văn thật</div>
+        <div class="text-xs text-slate-400 mt-1">Verified hydrological boundaries</div>
       </div>
       <div class="glass p-4">
-        <div class="text-xs text-slate-400">Xu Hướng SST (2003–2024)</div>
+        <div class="text-xs text-slate-400">SST Trend (2003–2024)</div>
         <div id="kpi-sst-slope" class="text-2xl font-bold text-rose-400 mt-1">--</div>
         <div id="kpi-sst-p" class="text-xs text-slate-400 mt-1">p-value: --</div>
       </div>
       <div class="glass p-4">
-        <div class="text-xs text-slate-400">Điểm Cỏ Biển Rủi Ro Cao</div>
+        <div class="text-xs text-slate-400">High-Risk Seagrass Zones</div>
         <div id="kpi-high-risk" class="text-2xl font-bold text-amber-400 mt-1">--</div>
-        <div class="text-xs text-slate-400 mt-1">Trong top 350 vùng lớn nhất</div>
+        <div class="text-xs text-slate-400 mt-1">Among top 350 largest meadows</div>
       </div>
       <div class="glass p-4">
-        <div class="text-xs text-slate-400">Nhận Định Hệ Thống</div>
+        <div class="text-xs text-slate-400">System Insight</div>
         <div id="kpi-insight" class="text-xs text-slate-200 mt-1 leading-relaxed">--</div>
       </div>
     </section>
@@ -71,12 +71,12 @@
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <div class="glass p-4 lg:col-span-2">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <h2 class="text-sm font-semibold text-white">Bản Đồ Phân Bố Thảm Cỏ Biển & Lưu Vực Sông (Dữ Liệu Thật)</h2>
+          <h2 class="text-sm font-semibold text-white">Seagrass Distribution & Watershed Risk Map (Observed Data)</h2>
           <div class="flex items-center gap-3 text-xs">
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> Rủi ro Cao</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> Trung bình</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-teal-400 inline-block"></span> Thấp</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 border border-sky-400 inline-block"></span> Lưu vực HydroBASINS</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> High Risk</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> Medium Risk</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-teal-400 inline-block"></span> Low Risk</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 border border-sky-400 inline-block"></span> HydroBASINS</span>
           </div>
         </div>
         <div id="map"></div>
@@ -84,12 +84,12 @@
 
       <div class="glass p-4 flex flex-col justify-between space-y-4">
         <div>
-          <h2 class="text-sm font-semibold text-white mb-1">Nhiệt Độ Mặt Biển (SST) 2003–2024 & Dự Báo 2025–2027</h2>
-          <p class="text-xs text-slate-400 mb-3">Trung bình năm từ MODIS-Aqua 4km + Dự phóng Sen's Slope</p>
+          <h2 class="text-sm font-semibold text-white mb-1">Sea Surface Temperature (2003–2024) & 2025–2027 Forecast</h2>
+          <p class="text-xs text-slate-400 mb-3">Annual mean from MODIS-Aqua 4km + Sen's Slope projection</p>
           <canvas id="sstChart" height="190"></canvas>
         </div>
         <div>
-          <h2 class="text-sm font-semibold text-white mb-1">Phân Bố Mức Độ Rủi Ro Thảm Cỏ Biển</h2>
+          <h2 class="text-sm font-semibold text-white mb-1">Seagrass Risk Level Breakdown</h2>
           <canvas id="riskChart" height="150"></canvas>
         </div>
       </div>
@@ -99,7 +99,7 @@
   <script>
     const D = window.BLUETREND_DATA;
     if (!D) {
-      alert("Không tìm thấy dữ liệu outputs/exports/bluetrend_web_data.js");
+      alert("Data file not found: data/processed/bluetrend_web_data.js");
     }
 
     // KPIs
@@ -109,22 +109,43 @@
 
     const sst = D.sst_2003_2024;
     document.getElementById("kpi-sst-slope").textContent = (sst.sen_slope_yr >= 0 ? "+" : "") + sst.sen_slope_yr.toFixed(4) + " °C/yr";
-    document.getElementById("kpi-sst-p").textContent = `p = ${sst.p_value} (${sst.significant ? "Có ý nghĩa" : "Chưa có ý nghĩa"})`;
+    document.getElementById("kpi-sst-p").textContent = `p = ${sst.p_value} (${sst.significant ? "Significant" : "Not significant"})`;
 
     const highRisk = D.seagrass_hotspots.filter(x => x.risk === "High");
     const medRisk = D.seagrass_hotspots.filter(x => x.risk === "Medium");
     const lowRisk = D.seagrass_hotspots.filter(x => x.risk === "Low");
     document.getElementById("kpi-high-risk").textContent = `${highRisk.length} / ${D.seagrass_hotspots.length}`;
     document.getElementById("kpi-insight").textContent = sst.significant
-      ? `SST ĐNA tăng có ý nghĩa thống kê trong 22 năm qua (+${(sst.sen_slope_yr * 22).toFixed(2)}°C). ${highRisk.length} vùng cỏ biển lớn đang chịu áp lực kép (SST & Kd490 cao).`
-      : `Chưa ghi nhận xu hướng SST đơn điệu rõ rệt trên toàn vùng; cần tập trung giám sát ${highRisk.length} điểm nóng cục bộ.`;
+      ? `SEA SST shows a statistically significant warming trend over 22 years (+${(sst.sen_slope_yr * 22).toFixed(2)}°C). ${highRisk.length} major seagrass meadows face dual SST & turbidity stress.`
+      : `No monotonic regional SST trend detected; prioritize monitoring ${highRisk.length} local high-risk hotspots.`;
 
-    // Leaflet Map (Free OpenStreetMap tiles - No API key required)
+    // Leaflet Map (Free Esri World Imagery satellite tiles - No API key, no disputed labels)
     const map = L.map("map").setView([8, 112], 4);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
       maxZoom: 18,
-      attribution: "© OpenStreetMap"
+      attribution: "Tiles © Esri"
     }).addTo(map);
+
+    // Explicit English geographic & sovereignty labels
+    const geoLabels = [
+      { coords: [16.5, 112.0], text: "Hoang Sa Archipelago (Vietnam)" },
+      { coords: [10.0, 114.5], text: "Truong Sa Archipelago (Vietnam)" },
+      { coords: [16.0, 107.5], text: "Vietnam" },
+      { coords: [15.5, 101.0], text: "Thailand" },
+      { coords: [21.0, 96.0], text: "Myanmar" },
+      { coords: [4.0, 102.0], text: "Malaysia" },
+      { coords: [-2.0, 114.0], text: "Indonesia" },
+      { coords: [12.5, 122.0], text: "Philippines" }
+    ];
+    geoLabels.forEach(item => {
+      L.marker(item.coords, {
+        interactive: false,
+        icon: L.divIcon({
+          className: "",
+          html: `<div style="color:#e2e8f0;font-size:11px;font-weight:600;text-shadow:0 1px 4px #000;white-space:nowrap;">${item.text}</div>`
+        })
+      }).addTo(map);
+    });
 
     function flyTo(lat, lon, zoom) {
       map.flyTo([lat, lon], zoom, { duration: 1.0 });
@@ -135,7 +156,7 @@
       style: { color: "#38bdf8", weight: 1.5, fillColor: "#0284c7", fillOpacity: 0.12 },
       onEachFeature: (feat, layer) => {
         const p = feat.properties || {};
-        layer.bindPopup(`<b>Lưu vực HydroBASINS</b><br>HYBAS_ID: ${p.HYBAS_ID}<br>Diện tích: ${Number(p.SUB_AREA || 0).toLocaleString()} km²`);
+        layer.bindPopup(`<b>HydroBASINS Watershed</b><br>HYBAS_ID: ${p.HYBAS_ID}<br>Area: ${Number(p.SUB_AREA || 0).toLocaleString()} km²`);
       }
     }).addTo(map);
 
@@ -150,13 +171,13 @@
         fillOpacity: 0.75,
         weight: 1
       }).bindPopup(`
-        <div style="font-size:12px; min-width:200px;">
-          <b>Thảm Cỏ Biển (${pt.risk} Risk)</b><br>
-          <b>Họ/Chi:</b> ${pt.family} / ${pt.genus}<br>
-          <b>Diện tích:</b> ${pt.area_sqkm} km²<br>
-          <b>SST (2018-24):</b> ${pt.sst ?? "N/A"} °C<br>
-          <b>Kd490 (độ đục):</b> ${pt.kd490 ?? "N/A"} m⁻¹<br>
-          <b>Mưa (GPM):</b> ${pt.gpm ?? "N/A"} mm/hr
+        <div style="font-size:12px; min-width:210px;">
+          <b>Seagrass Meadow (${pt.risk} Risk)</b><br>
+          <b>Family / Genus:</b> ${pt.family} / ${pt.genus}<br>
+          <b>Area:</b> ${pt.area_sqkm} km²<br>
+          <b>SST (2018–24):</b> ${pt.sst ?? "N/A"} °C<br>
+          <b>Kd490 (Turbidity):</b> ${pt.kd490 ?? "N/A"} m⁻¹<br>
+          <b>Precipitation (GPM):</b> ${pt.gpm ?? "N/A"} mm/hr
         </div>
       `).addTo(map);
     });
@@ -171,8 +192,8 @@
       data: {
         labels: allYears,
         datasets: [
-          { label: "SST Lịch sử (°C)", data: histData, borderColor: "#38bdf8", backgroundColor: "rgba(56,189,248,0.15)", tension: 0.25, fill: true },
-          { label: "Dự phóng 2025–2027", data: projData, borderColor: "#f43f5e", borderDash: [5, 5], tension: 0.1 }
+          { label: "Historical SST (°C)", data: histData, borderColor: "#38bdf8", backgroundColor: "rgba(56,189,248,0.15)", tension: 0.25, fill: true },
+          { label: "2025–2027 Projection", data: projData, borderColor: "#f43f5e", borderDash: [5, 5], tension: 0.1 }
         ]
       },
       options: { plugins: { legend: { labels: { color: "#cbd5e1", font: { size: 11 } } } }, scales: { x: { ticks: { color: "#94a3b8" } }, y: { ticks: { color: "#94a3b8" } } } }
@@ -182,7 +203,7 @@
     new Chart(document.getElementById("riskChart"), {
       type: "doughnut",
       data: {
-        labels: ["Rủi ro Cao", "Trung bình", "Thấp"],
+        labels: ["High Risk", "Medium Risk", "Low Risk"],
         datasets: [{ data: [highRisk.length, medRisk.length, lowRisk.length], backgroundColor: ["#f43f5e", "#fbbf24", "#2dd4bf"], borderWidth: 0 }]
       },
       options: { plugins: { legend: { position: "right", labels: { color: "#cbd5e1", font: { size: 11 } } } } }
