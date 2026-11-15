@@ -234,17 +234,36 @@
       ];
       sstChart.update();
 
-      const sugMap = {
-        sst: src.significant
-          ? "💡 Suggestion: Rising SST increases marine heatwave stress. Prioritize MPA protection and thermal monitoring at High-Risk meadows."
-          : "💡 Suggestion: SST trend is stable in this window; continue seasonal thermal monitoring.",
-        kd490: src.significant
-          ? "💡 Suggestion: Rising turbidity (Kd490) reduces underwater light for seagrass photosynthesis. Control sediment runoff from adjacent watersheds."
-          : "💡 Suggestion: Monitor coastal turbidity spikes during rainy seasons near river mouths.",
-        gpm: "💡 Suggestion: Heavy precipitation drives freshwater & sediment plumes into coastal meadows. Align watershed management with coastal conservation.",
-        co2: "💡 Suggestion: Rising atmospheric CO₂ accelerates ocean warming & acidification. Protecting seagrass meadows preserves vital Blue Carbon sinks."
-      };
-      document.getElementById("trendSuggestion").textContent = sugMap[vKey] || "";
+      const delta = fVals.length >= 2 ? fVals[fVals.length - 1] - fVals[0] : 0;
+      const isIncreasing = delta > 0;
+      const isDecreasing = delta < 0;
+      const periodTxt = `${yFrom}–${yTo}`;
+
+      let sugText = "";
+      if (vKey === "sst") {
+        sugText = isIncreasing
+          ? `💡 Suggestion (${periodTxt}): SST increased by +${delta.toFixed(2)}°C in this window, elevating marine heatwave stress. Prioritize thermal monitoring at High-Risk meadows.`
+          : isDecreasing
+          ? `💡 Suggestion (${periodTxt}): SST decreased by ${delta.toFixed(2)}°C in this window (short-term cooling/La Niña phase). Maintain baseline monitoring against sudden rebounds.`
+          : `💡 Suggestion (${periodTxt}): SST remained stable in this window; continue seasonal thermal monitoring.`;
+      } else if (vKey === "kd490") {
+        sugText = isIncreasing
+          ? `💡 Suggestion (${periodTxt}): Turbidity (Kd490) increased (+${delta.toFixed(4)} m⁻¹), reducing underwater light for seagrass. Control sediment runoff from adjacent watersheds.`
+          : isDecreasing
+          ? `💡 Suggestion (${periodTxt}): Turbidity (Kd490) decreased (${delta.toFixed(4)} m⁻¹), improving water clarity and light penetration for seagrass recovery.`
+          : `💡 Suggestion (${periodTxt}): Turbidity remained stable; monitor coastal spikes during monsoon months.`;
+      } else if (vKey === "gpm") {
+        sugText = isIncreasing
+          ? `💡 Suggestion (${periodTxt}): Precipitation increased (+${delta.toFixed(2)} mm/mth), driving stronger river sediment & freshwater plumes into coastal meadows.`
+          : isDecreasing
+          ? `💡 Suggestion (${periodTxt}): Precipitation decreased (${delta.toFixed(2)} mm/mth), reducing watershed runoff pressure but requiring drought-salinity watch.`
+          : `💡 Suggestion (${periodTxt}): Precipitation remained stable in this window.`;
+      } else if (vKey === "co2") {
+        sugText = isIncreasing
+          ? `💡 Suggestion (${periodTxt}): Atmospheric CO₂ rose (+${delta.toFixed(2)} ppm), accelerating ocean warming & acidification. Protecting seagrass preserves vital Blue Carbon sinks.`
+          : `💡 Suggestion (${periodTxt}): CO₂ showed a slight dip in this short window; long-term Blue Carbon conservation remains critical.`;
+      }
+      document.getElementById("trendSuggestion").textContent = sugText;
     }
 
     // Risk Bar Chart with value labels above bars
