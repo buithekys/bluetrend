@@ -17,6 +17,54 @@
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
+  <!-- WELCOME / LANDING OVERLAY -->
+  <div id="welcomeOverlay" class="fixed inset-0 z-[9999] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="max-w-4xl w-full glass p-6 md:p-8 space-y-6 shadow-2xl">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-teal-500/20 pb-4">
+        <div>
+          <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30">
+            NASA Space Apps Challenge • Earth System Trend Detective
+          </span>
+          <h1 class="text-2xl md:text-3xl font-bold text-white mt-2">🌊 BlueTrend — SEA Seagrass & Watershed Monitor</h1>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800">
+          <h3 class="font-semibold text-teal-400 mb-1">🎯 Project Mission</h3>
+          <p class="text-slate-300 text-xs leading-relaxed">
+            Monitor <b>21,221 seagrass meadows</b> across Southeast Asia, assess land-to-sea pressures from <b>14 HydroBASINS watersheds</b>, and deliver early-warning risk alerts for conservation prioritization.
+          </p>
+        </div>
+        <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800">
+          <h3 class="font-semibold text-sky-400 mb-1">👥 Target Users</h3>
+          <p class="text-slate-300 text-xs leading-relaxed">
+            <b>Marine Protected Area (MPA) Managers</b>, coastal resource agencies, and marine ecologists who need actionable spatial intelligence to prioritize conservation budgets.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800">
+        <h3 class="font-semibold text-amber-400 text-sm mb-2">🛰️ Key Earth System Variables & NASA Data Provenance</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-300">
+          <div>• <b>SST (MODIS-Aqua, 2003–2024):</b> Sea surface temperature; detects marine heatwave & thermal stress.</div>
+          <div>• <b>Kd490 (MODIS-Aqua, 2003–2024):</b> Water turbidity; measures light attenuation affecting seagrass photosynthesis.</div>
+          <div>• <b>Precipitation (GPM IMERG v07, 2003–2024):</b> Rainfall rate (mm/mth); drives river sediment & freshwater plumes.</div>
+          <div>• <b>CO₂ (NASA AIRS, 2010–2017):</b> Atmospheric CO₂ (ppm); tracks warming & ocean acidification pressure on Blue Carbon.</div>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-3">
+          <b>Verified Sources:</b> All trends are computed directly from NASA Giovanni / GES DISC datasets using Mann-Kendall & Sen's Slope, overlaid on UNEP-WCMC Seagrass & HydroBASINS polygons.
+        </p>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="startApp()" class="px-6 py-2.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-teal-500/25">
+          Start Explorer →
+        </button>
+      </div>
+    </div>
+  </div>
+
   <header class="border-b border-teal-500/20 bg-slate-950/90 sticky top-0 z-50 px-5 py-3">
     <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -99,17 +147,24 @@
             </div>
           </div>
           <p id="trendSubtitle" class="text-xs text-slate-400 mb-2">Annual mean + Sen's Slope projection</p>
-          <canvas id="sstChart" height="185"></canvas>
+          <canvas id="sstChart" height="175"></canvas>
+          <div id="trendSuggestion" class="mt-2 p-2.5 rounded-lg bg-teal-950/50 border border-teal-500/30 text-xs text-teal-200 leading-relaxed"></div>
         </div>
         <div>
           <h2 class="text-sm font-semibold text-white mb-1">Seagrass Risk Level Breakdown</h2>
-          <canvas id="riskChart" height="150"></canvas>
+          <canvas id="riskChart" height="145"></canvas>
+          <div id="riskSuggestion" class="mt-2 p-2.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs text-slate-200 leading-relaxed"></div>
         </div>
       </div>
     </section>
   </main>
 
   <script>
+    function startApp() {
+      document.getElementById("welcomeOverlay").style.display = "none";
+      setTimeout(() => map.invalidateSize(), 150);
+    }
+
     const D = window.BLUETREND_DATA;
     if (!D) {
       alert("Data file not found: data/processed/bluetrend_web_data.js");
@@ -178,6 +233,18 @@
         ...(showProj ? [{ label: "3-Yr Projection", data: projSeries, borderColor: "#f43f5e", borderDash: [5, 5], tension: 0.1 }] : [])
       ];
       sstChart.update();
+
+      const sugMap = {
+        sst: src.significant
+          ? "💡 Suggestion: Rising SST increases marine heatwave stress. Prioritize MPA protection and thermal monitoring at High-Risk meadows."
+          : "💡 Suggestion: SST trend is stable in this window; continue seasonal thermal monitoring.",
+        kd490: src.significant
+          ? "💡 Suggestion: Rising turbidity (Kd490) reduces underwater light for seagrass photosynthesis. Control sediment runoff from adjacent watersheds."
+          : "💡 Suggestion: Monitor coastal turbidity spikes during rainy seasons near river mouths.",
+        gpm: "💡 Suggestion: Heavy precipitation drives freshwater & sediment plumes into coastal meadows. Align watershed management with coastal conservation.",
+        co2: "💡 Suggestion: Rising atmospheric CO₂ accelerates ocean warming & acidification. Protecting seagrass meadows preserves vital Blue Carbon sinks."
+      };
+      document.getElementById("trendSuggestion").textContent = sugMap[vKey] || "";
     }
 
     // Risk Bar Chart with value labels above bars
@@ -237,6 +304,17 @@
       riskChart.data.labels = ["High Risk", "Medium Risk", "Low Risk"];
       riskChart.data.datasets[0].data = [hi, md, lo];
       riskChart.update();
+
+      const hiPct = Math.round((hi * 100) / tot);
+      let riskMsg = "";
+      if (hiPct >= 30) {
+        riskMsg = `⚠️ Critical (${hiPct}% High Risk in ${reg.name}): Prioritize strict MPA zoning, sediment control from nearby watersheds, and urgent field restoration.`;
+      } else if (md >= hi && md >= lo) {
+        riskMsg = `🔎 Watchlist (${reg.name}): Medium-risk meadows dominate. Increase seasonal monitoring during peak heat and monsoon runoff months.`;
+      } else {
+        riskMsg = `✅ Resilient (${reg.name}): Low-risk meadows dominate. Maintain current protection as natural seed-bank buffers for surrounding reefs.`;
+      }
+      document.getElementById("riskSuggestion").textContent = riskMsg;
 
       const tr = reg.trendId ? D.trends.find(t => t.basin_id === reg.trendId) : null;
       if (tr) {
