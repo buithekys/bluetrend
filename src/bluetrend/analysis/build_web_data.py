@@ -65,6 +65,7 @@ def main():
     sst_summary["proj_sst"] = sst_summary["proj_vals"]
     kd_summary = load_giovanni_2003_2024("data/incoming/Kd490.2003-2024.csv") if os.path.exists("data/incoming/Kd490.2003-2024.csv") else None
     gpm_summary = load_giovanni_2003_2024("data/incoming/prec-rain.2003-2024.csv") if os.path.exists("data/incoming/prec-rain.2003-2024.csv") else None
+    co2_summary = load_giovanni_2003_2024("data/incoming/Input AIRS3C2M.csv") if os.path.exists("data/incoming/Input AIRS3C2M.csv") else None
 
     # 2. Existing 15-series trend results
     trends_df = pd.read_csv("outputs/statistics/trend_results_all.csv")
@@ -133,6 +134,7 @@ def main():
         "sst_2003_2024": sst_summary,
         "kd490_2003_2024": kd_summary,
         "gpm_2003_2024": gpm_summary,
+        "co2_airs": co2_summary,
         "trends": trends_list,
         "watersheds_geojson": watersheds_geojson,
         "seagrass_hotspots": seagrass_points,
