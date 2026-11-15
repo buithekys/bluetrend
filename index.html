@@ -81,6 +81,7 @@
         <button onclick="selectRegion('mekong')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Mekong & Gulf of Thailand</button>
         <button onclick="selectRegion('tonkin')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Gulf of Tonkin</button>
         <button onclick="selectRegion('malacca')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Strait of Malacca</button>
+        <button onclick="toggleGuide(true)" class="px-3 py-1.5 text-xs rounded-lg bg-sky-600/25 hover:bg-sky-600/40 border border-sky-500/40 text-sky-200">ℹ Guide & Variables</button>
         <button onclick="exportCSV()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white">⬇ Export Risk CSV</button>
       </div>
     </div>
@@ -160,10 +161,43 @@
     </section>
   </main>
 
+  <!-- GUIDE & VARIABLES MODAL -->
+  <div id="guideModal" onclick="if(event.target===this) toggleGuide(false)" class="fixed inset-0 z-[2000] hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full glass p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-teal-500/20 pb-3">
+        <h3 class="text-base font-bold text-white">ℹ Variables & Risk Scoring Reference</h3>
+        <button onclick="toggleGuide(false)" class="text-slate-400 hover:text-white text-lg font-bold px-2">✕</button>
+      </div>
+      <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+        <div>
+          <b class="text-teal-300">Map Markers (Top 350 of 21,221 UNEP-WCMC Seagrass Meadows):</b>
+          <ul class="list-disc pl-5 mt-1 space-y-1">
+            <li><span class="text-rose-400 font-semibold">High Risk (Red, Score ≥ 4):</span> Dual stress from high thermal load & high turbidity. Immediate MPA priority.</li>
+            <li><span class="text-amber-300 font-semibold">Medium Risk (Yellow, Score 2–3):</span> Single or moderate stressor; requires seasonal monitoring.</li>
+            <li><span class="text-teal-300 font-semibold">Low Risk (Teal, Score 0–1):</span> Relatively stable water clarity & temperature; acts as natural seed-bank buffer.</li>
+          </ul>
+        </div>
+        <div>
+          <b class="text-sky-300">Environmental Variables & Thresholds:</b>
+          <ul class="list-disc pl-5 mt-1 space-y-1">
+            <li><b>SST (°C, MODIS-Aqua):</b> Sea Surface Temperature. Thresholds: ≥ 29°C (+2 pts), ≥ 28°C (+1 pt).</li>
+            <li><b>Kd490 (m⁻¹, MODIS-Aqua):</b> Diffuse attenuation (turbidity). Thresholds: ≥ 0.15 m⁻¹ (+2 pts), ≥ 0.08 m⁻¹ (+1 pt).</li>
+            <li><b>Precipitation (mm/mth, GPM IMERG v07):</b> Rainfall driving river sediment plumes. Threshold: ≥ 0.30 (+1 pt).</li>
+            <li><b>CO₂ (ppm, NASA AIRS) & Seawater pCO₂ (µatm, EU Copernicus):</b> Tracks atmospheric carbon & ocean acidification pressure.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     function startApp() {
       document.getElementById("welcomeOverlay").style.display = "none";
       setTimeout(() => map.invalidateSize(), 150);
+    }
+
+    function toggleGuide(show) {
+      document.getElementById("guideModal").classList.toggle("hidden", !show);
     }
 
     const D = window.BLUETREND_DATA;
