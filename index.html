@@ -29,10 +29,10 @@
         <p class="text-xs text-slate-400">Monitoring Southeast Asia seagrass distribution, watershed pressures & conservation risk alerts</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button onclick="flyTo(8, 112, 4)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">SEA Overview</button>
-        <button onclick="flyTo(10.0, 104.5, 6)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Mekong & Gulf of Thailand</button>
-        <button onclick="flyTo(20.2, 107.5, 7)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Gulf of Tonkin</button>
-        <button onclick="flyTo(3.0, 101.0, 6)" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Strait of Malacca</button>
+        <button onclick="selectRegion('sea')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">SEA Overview</button>
+        <button onclick="selectRegion('mekong')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Mekong & Gulf of Thailand</button>
+        <button onclick="selectRegion('tonkin')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Gulf of Tonkin</button>
+        <button onclick="selectRegion('malacca')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-teal-600/30 border border-slate-700">Strait of Malacca</button>
         <button onclick="exportCSV()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white">⬇ Export Risk CSV</button>
       </div>
     </div>
@@ -107,19 +107,85 @@
     document.getElementById("kpi-sg-area").textContent = D.meta.total_seagrass_area_sqkm.toLocaleString() + " km²";
     document.getElementById("kpi-ws-count").textContent = D.meta.total_watersheds;
 
-    const sst = D.sst_2003_2024;
-    document.getElementById("kpi-sst-slope").textContent = (sst.sen_slope_yr >= 0 ? "+" : "") + sst.sen_slope_yr.toFixed(4) + " °C/yr";
-    document.getElementById("kpi-sst-p").textContent = `p = ${sst.p_value} (${sst.significant ? "Significant" : "Not significant"})`;
+    const REGIONS = {
+      sea:     { name: "SEA Overview", center: [8, 112], zoom: 4, bbox: [-15, 90, 30, 145], trendId: null },
+      mekong:  { name: "Mekong & Gulf of Thailand", center: [10.0, 104.5], zoom: 6, bbox: [6.5, 99.0, 13.5, 106.5], trendId: "marine_06" },
+      tonkin:  { name: "Gulf of Tonkin", center: [20.2, 107.5], zoom: 7, bbox: [17.8, 106.0, 21.5, 109.5], trendId: "marine_07" },
+      malacca: { name: "Strait of Malacca", center: [3.0, 101.0], zoom: 6, bbox: [1.0, 97.5, 6.0, 103.5], trendId: "marine_05" }
+    };
 
-    const highRisk = D.seagrass_hotspots.filter(x => x.risk === "High");
-    const medRisk = D.seagrass_hotspots.filter(x => x.risk === "Medium");
-    const lowRisk = D.seagrass_hotspots.filter(x => x.risk === "Low");
-    document.getElementById("kpi-high-risk").textContent = `${highRisk.length} / ${D.seagrass_hotspots.length}`;
+    const sst = D.sst_2003_2024;
     const co2 = D.co2_airs;
     const co2Note = co2 ? ` Regional CO₂ (AIRS 2010–2017): +${co2.sen_slope_yr.toFixed(2)} ppm/yr (p=${co2.p_value}).` : "";
-    document.getElementById("kpi-insight").textContent = sst.significant
-      ? `SEA SST shows a statistically significant warming trend over 22 years (+${(sst.sen_slope_yr * 22).toFixed(2)}°C). ${highRisk.length} major seagrass meadows face dual SST & turbidity stress.${co2Note}`
-      : `No monotonic regional SST trend detected; prioritize monitoring ${highRisk.length} local high-risk hotspots.${co2Note}`;
+
+    // SST Chart instance
+    const allYears = [...sst.annual_years, ...sst.proj_years];
+    const histData = [...sst.annual_sst, null, null, null];
+    const projData = [...Array(sst.annual_sst.length - 1).fill(null), sst.annual_sst[sst.annual_sst.length - 1], ...sst.proj_sst];
+
+    const sstChart = new Chart(document.getElementById("sstChart"), {
+      type: "line",
+      data: {
+        labels: allYears,
+        datasets: [
+          { label: "Historical SST (°C)", data: histData, borderColor: "#38bdf8", backgroundColor: "rgba(56,189,248,0.15)", tension: 0.25, fill: true },
+          { label: "2025–2027 Projection", data: projData, borderColor: "#f43f5e", borderDash: [5, 5], tension: 0.1 }
+        ]
+      },
+      options: { plugins: { legend: { labels: { color: "#cbd5e1", font: { size: 11 } } } }, scales: { x: { ticks: { color: "#94a3b8" } }, y: { ticks: { color: "#94a3b8" } } } }
+    });
+
+    // Risk Bar Chart
+    const riskChart = new Chart(document.getElementById("riskChart"), {
+      type: "bar",
+      data: {
+        labels: ["High Risk", "Medium Risk", "Low Risk"],
+        datasets: [{
+          label: "Meadows",
+          data: [0, 0, 0],
+          backgroundColor: ["#f43f5e", "#fbbf24", "#2dd4bf"],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#cbd5e1", font: { size: 11 } } },
+          y: { beginAtZero: true, ticks: { color: "#94a3b8", precision: 0 } }
+        }
+      }
+    });
+
+    function selectRegion(key) {
+      const reg = REGIONS[key] || REGIONS.sea;
+      map.flyTo(reg.center, reg.zoom, { duration: 1.0 });
+
+      const [sLat, wLon, nLat, eLon] = reg.bbox;
+      const pts = D.seagrass_hotspots.filter(p => p.lat >= sLat && p.lat <= nLat && p.lon >= wLon && p.lon <= eLon);
+      const hi = pts.filter(x => x.risk === "High").length;
+      const md = pts.filter(x => x.risk === "Medium").length;
+      const lo = pts.filter(x => x.risk === "Low").length;
+      const tot = pts.length || 1;
+
+      document.getElementById("kpi-high-risk").textContent = `${hi} / ${pts.length}`;
+      riskChart.data.labels = [
+        `High Risk (${hi} - ${Math.round(hi * 100 / tot)}%)`,
+        `Medium Risk (${md} - ${Math.round(md * 100 / tot)}%)`,
+        `Low Risk (${lo} - ${Math.round(lo * 100 / tot)}%)`
+      ];
+      riskChart.data.datasets[0].data = [hi, md, lo];
+      riskChart.update();
+
+      const tr = reg.trendId ? D.trends.find(t => t.basin_id === reg.trendId) : null;
+      if (tr) {
+        document.getElementById("kpi-insight").textContent =
+          `${reg.name}: ${pts.length} major meadows (${hi} High Risk). Kd490 Sen's slope = +${tr.sen_slope.toFixed(4)} ${tr.slope_units} (p=${tr.p_value.toFixed(5)}, ${tr.significance}).${co2Note}`;
+      } else {
+        document.getElementById("kpi-insight").textContent = sst.significant
+          ? `SEA SST shows a statistically significant warming trend over 22 years (+${(sst.sen_slope_yr * 22).toFixed(2)}°C). ${hi} major seagrass meadows face dual SST & turbidity stress.${co2Note}`
+          : `No monotonic regional SST trend detected; prioritize monitoring ${hi} local high-risk hotspots.${co2Note}`;
+      }
+    }
 
     // Leaflet Map (Free Esri World Imagery satellite tiles - No API key, no disputed labels)
     const map = L.map("map").setView([8, 112], 4);
@@ -184,32 +250,10 @@
       `).addTo(map);
     });
 
-    // SST Chart
-    const allYears = [...sst.annual_years, ...sst.proj_years];
-    const histData = [...sst.annual_sst, null, null, null];
-    const projData = [...Array(sst.annual_sst.length - 1).fill(null), sst.annual_sst[sst.annual_sst.length - 1], ...sst.proj_sst];
-
-    new Chart(document.getElementById("sstChart"), {
-      type: "line",
-      data: {
-        labels: allYears,
-        datasets: [
-          { label: "Historical SST (°C)", data: histData, borderColor: "#38bdf8", backgroundColor: "rgba(56,189,248,0.15)", tension: 0.25, fill: true },
-          { label: "2025–2027 Projection", data: projData, borderColor: "#f43f5e", borderDash: [5, 5], tension: 0.1 }
-        ]
-      },
-      options: { plugins: { legend: { labels: { color: "#cbd5e1", font: { size: 11 } } } }, scales: { x: { ticks: { color: "#94a3b8" } }, y: { ticks: { color: "#94a3b8" } } } }
-    });
-
-    // Risk Doughnut
-    new Chart(document.getElementById("riskChart"), {
-      type: "doughnut",
-      data: {
-        labels: ["High Risk", "Medium Risk", "Low Risk"],
-        datasets: [{ data: [highRisk.length, medRisk.length, lowRisk.length], backgroundColor: ["#f43f5e", "#fbbf24", "#2dd4bf"], borderWidth: 0 }]
-      },
-      options: { plugins: { legend: { position: "right", labels: { color: "#cbd5e1", font: { size: 11 } } } } }
-    });
+    // Initialize default region view
+    document.getElementById("kpi-sst-slope").textContent = (sst.sen_slope_yr >= 0 ? "+" : "") + sst.sen_slope_yr.toFixed(4) + " °C/yr";
+    document.getElementById("kpi-sst-p").textContent = `p = ${sst.p_value} (${sst.significant ? "Significant" : "Not significant"})`;
+    selectRegion("sea");
 
     function exportCSV() {
       const headers = ["lat", "lon", "area_sqkm", "family", "genus", "sst", "kd490", "gpm", "risk"];
