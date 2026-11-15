@@ -84,9 +84,22 @@
 
       <div class="glass p-4 flex flex-col justify-between space-y-4">
         <div>
-          <h2 class="text-sm font-semibold text-white mb-1">Sea Surface Temperature (2003–2024) & 2025–2027 Forecast</h2>
-          <p class="text-xs text-slate-400 mb-3">Annual mean from MODIS-Aqua 4km + Sen's Slope projection</p>
-          <canvas id="sstChart" height="190"></canvas>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <h2 id="trendTitle" class="text-sm font-semibold text-white">Historical Trend & Forecast</h2>
+            <div class="flex flex-wrap items-center gap-1.5 text-xs">
+              <select id="varSelect" onchange="updateTrendChart()" class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                <option value="sst">SST (°C)</option>
+                <option value="kd490">Kd490 (m⁻¹)</option>
+                <option value="gpm">Precipitation (mm/mth)</option>
+                <option value="co2">CO₂ (ppm)</option>
+              </select>
+              <input id="yearFrom" type="number" min="2003" max="2024" value="2003" onchange="updateTrendChart()" class="w-16 bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-slate-200" />
+              <span class="text-slate-400">–</span>
+              <input id="yearTo" type="number" min="2003" max="2024" value="2024" onchange="updateTrendChart()" class="w-16 bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-slate-200" />
+            </div>
+          </div>
+          <p id="trendSubtitle" class="text-xs text-slate-400 mb-2">Annual mean + Sen's Slope projection</p>
+          <canvas id="sstChart" height="185"></canvas>
         </div>
         <div>
           <h2 class="text-sm font-semibold text-white mb-1">Seagrass Risk Level Breakdown</h2>
@@ -118,24 +131,75 @@
     const co2 = D.co2_airs;
     const co2Note = co2 ? ` Regional CO₂ (AIRS 2010–2017): +${co2.sen_slope_yr.toFixed(2)} ppm/yr (p=${co2.p_value}).` : "";
 
-    // SST Chart instance
-    const allYears = [...sst.annual_years, ...sst.proj_years];
-    const histData = [...sst.annual_sst, null, null, null];
-    const projData = [...Array(sst.annual_sst.length - 1).fill(null), sst.annual_sst[sst.annual_sst.length - 1], ...sst.proj_sst];
-
     const sstChart = new Chart(document.getElementById("sstChart"), {
       type: "line",
-      data: {
-        labels: allYears,
-        datasets: [
-          { label: "Historical SST (°C)", data: histData, borderColor: "#38bdf8", backgroundColor: "rgba(56,189,248,0.15)", tension: 0.25, fill: true },
-          { label: "2025–2027 Projection", data: projData, borderColor: "#f43f5e", borderDash: [5, 5], tension: 0.1 }
-        ]
-      },
+      data: { labels: [], datasets: [] },
       options: { plugins: { legend: { labels: { color: "#cbd5e1", font: { size: 11 } } } }, scales: { x: { ticks: { color: "#94a3b8" } }, y: { ticks: { color: "#94a3b8" } } } }
     });
 
-    // Risk Bar Chart
+    function updateTrendChart() {
+      const vKey = document.getElementById("varSelect").value;
+      const yFrom = parseInt(document.getElementById("yearFrom").value, 10) || 2003;
+      const yTo = parseInt(document.getElementById("yearTo").value, 10) || 2024;
+
+      const metaMap = {
+        sst: { obj: D.sst_2003_2024, label: "SST (°C)", color: "#38bdf8", bg: "rgba(56,189,248,0.15)" },
+        kd490: { obj: D.kd490_2003_2024, label: "Kd490 (m⁻¹)", color: "#a78bfa", bg: "rgba(167,139,250,0.15)" },
+        gpm: { obj: D.gpm_2003_2024, label: "Precipitation (mm/mth)", color: "#34d399", bg: "rgba(52,211,153,0.15)" },
+        co2: { obj: D.co2_airs, label: "CO₂ (ppm)", color: "#fb923c", bg: "rgba(251,146,60,0.15)" }
+      };
+      const cfg = metaMap[vKey];
+      if (!cfg || !cfg.obj) return;
+
+      const src = cfg.obj;
+      const rawVals = src.annual_vals || src.annual_sst || [];
+      const projVals = src.proj_vals || src.proj_sst || [];
+
+      const fYears = [], fVals = [];
+      src.annual_years.forEach((yr, i) => {
+        if (yr >= yFrom && yr <= yTo) {
+          fYears.push(yr);
+          fVals.push(rawVals[i]);
+        }
+      });
+
+      const showProj = projVals.length > 0 && yTo >= src.annual_years[src.annual_years.length - 1];
+      const labels = showProj ? [...fYears, ...src.proj_years] : fYears;
+      const histSeries = showProj ? [...fVals, ...Array(src.proj_years.length).fill(null)] : fVals;
+      const projSeries = showProj ? [...Array(Math.max(0, fVals.length - 1)).fill(null), fVals[fVals.length - 1], ...projVals] : [];
+
+      document.getElementById("trendTitle").textContent = `${cfg.label} (${yFrom}–${yTo})`;
+      document.getElementById("trendSubtitle").textContent =
+        `Sen's slope: ${src.sen_slope_yr >= 0 ? "+" : ""}${src.sen_slope_yr} /yr | p-value: ${src.p_value}`;
+
+      sstChart.data.labels = labels;
+      sstChart.data.datasets = [
+        { label: `Historical ${cfg.label}`, data: histSeries, borderColor: cfg.color, backgroundColor: cfg.bg, tension: 0.25, fill: true },
+        ...(showProj ? [{ label: "3-Yr Projection", data: projSeries, borderColor: "#f43f5e", borderDash: [5, 5], tension: 0.1 }] : [])
+      ];
+      sstChart.update();
+    }
+
+    // Risk Bar Chart with value labels above bars
+    const barValuePlugin = {
+      id: "barValueLabels",
+      afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        const meta = chart.getDatasetMeta(0);
+        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0) || 1;
+        ctx.save();
+        ctx.fillStyle = "#e2e8f0";
+        ctx.font = "600 11px Inter, sans-serif";
+        ctx.textAlign = "center";
+        meta.data.forEach((bar, i) => {
+          const val = chart.data.datasets[0].data[i];
+          const pct = Math.round((val * 100) / total);
+          ctx.fillText(`${val} (${pct}%)`, bar.x, bar.y - 6);
+        });
+        ctx.restore();
+      }
+    };
+
     const riskChart = new Chart(document.getElementById("riskChart"), {
       type: "bar",
       data: {
@@ -148,12 +212,14 @@
         }]
       },
       options: {
+        layout: { padding: { top: 20 } },
         plugins: { legend: { display: false } },
         scales: {
           x: { ticks: { color: "#cbd5e1", font: { size: 11 } } },
           y: { beginAtZero: true, ticks: { color: "#94a3b8", precision: 0 } }
         }
-      }
+      },
+      plugins: [barValuePlugin]
     });
 
     function selectRegion(key) {
@@ -168,11 +234,7 @@
       const tot = pts.length || 1;
 
       document.getElementById("kpi-high-risk").textContent = `${hi} / ${pts.length}`;
-      riskChart.data.labels = [
-        `High Risk (${hi} - ${Math.round(hi * 100 / tot)}%)`,
-        `Medium Risk (${md} - ${Math.round(md * 100 / tot)}%)`,
-        `Low Risk (${lo} - ${Math.round(lo * 100 / tot)}%)`
-      ];
+      riskChart.data.labels = ["High Risk", "Medium Risk", "Low Risk"];
       riskChart.data.datasets[0].data = [hi, md, lo];
       riskChart.update();
 
@@ -245,7 +307,7 @@
           <b>Area:</b> ${pt.area_sqkm} km²<br>
           <b>SST (2018–24):</b> ${pt.sst ?? "N/A"} °C<br>
           <b>Kd490 (Turbidity):</b> ${pt.kd490 ?? "N/A"} m⁻¹<br>
-          <b>Precipitation (GPM):</b> ${pt.gpm ?? "N/A"} mm/hr
+          <b>Precipitation (GPM):</b> ${pt.gpm ?? "N/A"} mm/mth
         </div>
       `).addTo(map);
     });
@@ -254,6 +316,7 @@
     document.getElementById("kpi-sst-slope").textContent = (sst.sen_slope_yr >= 0 ? "+" : "") + sst.sen_slope_yr.toFixed(4) + " °C/yr";
     document.getElementById("kpi-sst-p").textContent = `p = ${sst.p_value} (${sst.significant ? "Significant" : "Not significant"})`;
     selectRegion("sea");
+    updateTrendChart();
 
     function exportCSV() {
       const headers = ["lat", "lon", "area_sqkm", "family", "genus", "sst", "kd490", "gpm", "risk"];
