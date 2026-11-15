@@ -1,0 +1,191 @@
+{
+  "generated_at": "2026-11-14T08:53:03.241124+00:00",
+  "total_files": 26,
+  "results": [
+    {
+      "file": "Bien Andaman.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "Bien Sulawesi.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "Central Coast.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "DongNamA.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "Indonesian Archipelago.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "KD490sea.tif",
+      "status": "pass",
+      "crs": "EPSG:4326",
+      "shape": [
+        948,
+        1176
+      ],
+      "nodata": -32767.0
+    },
+    {
+      "file": "Luu vuc Song Irrawaddy & Salween.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "Luu vuc Sông Thu Bồn & Sông Côn.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "Luu vuc song Kampar & Pahang.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "Luu vuc song Kapuas & Mahakam.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "Luu vuc song Mekong & Chao Phraya.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "SST..tif",
+      "status": "pass",
+      "crs": "EPSG:4326",
+      "shape": [
+        948,
+        1176
+      ],
+      "nodata": -32767.0
+    },
+    {
+      "file": "SST.nc",
+      "status": "pass",
+      "variable": "MODISA_L3m_SST_Monthly_4km_R2019_0_sst",
+      "units": "C",
+      "dims": {
+        "lat": 948,
+        "lon": 1176,
+        "latv": 2,
+        "lonv": 2
+      }
+    },
+    {
+      "file": "Song Cagayan & Kinabatangan.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "Song Hong-Thai Binh.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "Strait of Malacca.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "Vinh Thai Lan & Tay Nam Bo.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "VinhBacBo.csv",
+      "status": "pass",
+      "n_records": 84,
+      "valid_records": 84,
+      "notes": "Giovanni monthly CSV, 84 rows, 84 valid"
+    },
+    {
+      "file": "kd490_sea.nc",
+      "status": "pass",
+      "variable": "MODISA_L3m_KD_Mo_4km_R2022_0_Kd_490",
+      "units": "m^-1",
+      "dims": {
+        "lat": 948,
+        "lon": 1176,
+        "latv": 2,
+        "lonv": 2
+      }
+    },
+    {
+      "file": "pre-est.tif",
+      "status": "pass",
+      "crs": "EPSG:4326",
+      "shape": [
+        395,
+        490
+      ],
+      "nodata": -9999.900390625
+    },
+    {
+      "file": "prec_est.nc",
+      "status": "pass",
+      "variable": "GPM_3IMERGM_07_precipitation",
+      "units": "mm/hr",
+      "dims": {
+        "lat": 395,
+        "lon": 490,
+        "latv": 2,
+        "lonv": 2
+      }
+    },
+    {
+      "file": "sea_coastal_roi.geojson",
+      "status": "pass",
+      "crs": "EPSG:4326",
+      "features": 1,
+      "valid_geoms": 1
+    },
+    {
+      "file": "sea_hotspot_zones.geojson",
+      "status": "pass",
+      "crs": "EPSG:4326",
+      "features": 1,
+      "valid_geoms": 1
+    }
+  ]
+}

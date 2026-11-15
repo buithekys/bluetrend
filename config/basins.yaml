@@ -1,0 +1,95 @@
+basins:
+  - basin_id: basin_01
+    name: "Irrawaddy & Salween"
+    region_type: river_basin
+    source_file: "Luu vuc Song Irrawaddy & Salween.csv"
+    bbox: [94.5, 16.0, 98.5, 22.0]
+    status: approximate_bbox
+  - basin_id: basin_02
+    name: "Kampar & Pahang"
+    region_type: river_basin
+    source_file: "Luu vuc song Kampar & Pahang.csv"
+    bbox: [100.5, -1.0, 103.5, 4.5]
+    status: approximate_bbox
+  - basin_id: basin_03
+    name: "Kapuas & Mahakam"
+    region_type: river_basin
+    source_file: "Luu vuc song Kapuas & Mahakam.csv"
+    bbox: [109.5, -2.5, 117.5, 1.5]
+    status: approximate_bbox
+  - basin_id: basin_04
+    name: "Mekong & Chao Phraya"
+    region_type: river_basin
+    source_file: "Luu vuc song Mekong & Chao Phraya.csv"
+    bbox: [100.0, 8.5, 108.0, 22.0]
+    status: approximate_bbox
+  - basin_id: basin_05
+    name: "Thu Bon & Song Con"
+    region_type: river_basin
+    source_file: "Luu vuc Sông Thu Bồn & Sông Côn.csv"
+    bbox: [107.5, 13.5, 109.3, 16.0]
+    status: approximate_bbox
+  - basin_id: basin_06
+    name: "Cagayan & Kinabatangan"
+    region_type: river_basin
+    source_file: "Song Cagayan & Kinabatangan.csv"
+    bbox: [116.5, 5.0, 122.5, 18.5]
+    status: approximate_bbox
+  - basin_id: basin_07
+    name: "Hong - Thai Binh"
+    region_type: river_basin
+    source_file: "Song Hong-Thai Binh.csv"
+    bbox: [102.5, 19.5, 108.0, 23.5]
+    status: approximate_bbox
+
+marine_regions:
+  - basin_id: marine_01
+    name: "Andaman Sea"
+    region_type: marine_region
+    source_file: "Bien Andaman.csv"
+    bbox: [95.0, 6.5, 98.3, 15.5]
+    status: approximate_bbox
+  - basin_id: marine_02
+    name: "Sulawesi Sea"
+    region_type: marine_region
+    source_file: "Bien Sulawesi.csv"
+    bbox: [118.0, 2.0, 125.5, 13.5]
+    status: approximate_bbox
+  - basin_id: marine_03
+    name: "Central Coast (Vietnam)"
+    region_type: marine_region
+    source_file: "Central Coast.csv"
+    bbox: [108.3, 11.8, 109.8, 17.0]
+    status: approximate_bbox
+  - basin_id: marine_04
+    name: "Indonesian Archipelago"
+    region_type: marine_region
+    source_file: "Indonesian Archipelago.csv"
+    bbox: [106.0, -9.5, 134.0, 0.5]
+    status: approximate_bbox
+  - basin_id: marine_05
+    name: "Strait of Malacca"
+    region_type: marine_region
+    source_file: "Strait of Malacca.csv"
+    bbox: [97.5, 1.0, 103.5, 6.0]
+    status: approximate_bbox
+  - basin_id: marine_06
+    name: "Gulf of Thailand & SW Vietnam"
+    region_type: marine_region
+    source_file: "Vinh Thai Lan & Tay Nam Bo.csv"
+    bbox: [99.0, 6.5, 105.5, 13.5]
+    status: approximate_bbox
+  - basin_id: marine_07
+    name: "Gulf of Tonkin (Vinh Bac Bo)"
+    region_type: marine_region
+    source_file: "VinhBacBo.csv"
+    bbox: [106.2, 17.8, 109.5, 21.2]
+    status: approximate_bbox
+
+regional_overview:
+  - basin_id: region_sea
+    name: "Southeast Asia (Overview)"
+    region_type: regional_overview
+    source_file: "DongNamA.csv"
+    bbox: [92.0, -11.0, 141.0, 28.5]
+    status: approximate_bbox

@@ -1,0 +1,3 @@
+timestamp,step,input_count,output_file,n_rows,status
+2026-11-14T08:54:31.363681+00:00,build_normalized_timeseries,15,data/processed/tabular/timeseries_all.parquet,1260,success
+2026-11-14T09:32:45.262209+00:00,build_normalized_timeseries,15,data/processed/tabular/timeseries_all.parquet,1260,success
