@@ -140,6 +140,7 @@
                 <option value="kd490">Kd490 (m⁻¹)</option>
                 <option value="gpm">Precipitation (mm/mth)</option>
                 <option value="co2">CO₂ (ppm)</option>
+                <option value="spco2">Seawater pCO₂ (µatm)</option>
               </select>
               <input id="yearFrom" type="number" min="2003" max="2024" value="2003" onchange="updateTrendChart()" class="w-16 bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-slate-200" />
               <span class="text-slate-400">–</span>
@@ -199,14 +200,15 @@
       const yTo = parseInt(document.getElementById("yearTo").value, 10) || 2024;
 
       const regObj = (D.region_series && D.region_series[currentRegion]) ? D.region_series[currentRegion] : null;
-      const fallbackMap = { sst: D.sst_2003_2024, kd490: D.kd490_2003_2024, gpm: D.gpm_2003_2024, co2: D.co2_airs };
-      const src = (regObj && regObj[vKey]) ? regObj[vKey] : fallbackMap[vKey];
+      const fallbackMap = { sst: D.sst_2003_2024, kd490: D.kd490_2003_2024, gpm: D.gpm_2003_2024, co2: D.co2_airs, spco2: D.spco2_2003_2024 };
+      const src = (vKey !== "spco2" && regObj && regObj[vKey]) ? regObj[vKey] : fallbackMap[vKey];
 
       const metaMap = {
         sst: { label: "SST (°C)", color: "#38bdf8", bg: "rgba(56,189,248,0.15)" },
         kd490: { label: "Kd490 (m⁻¹)", color: "#a78bfa", bg: "rgba(167,139,250,0.15)" },
         gpm: { label: "Precipitation (mm/mth)", color: "#34d399", bg: "rgba(52,211,153,0.15)" },
-        co2: { label: "CO₂ (ppm)", color: "#fb923c", bg: "rgba(251,146,60,0.15)" }
+        co2: { label: "CO₂ (ppm)", color: "#fb923c", bg: "rgba(251,146,60,0.15)" },
+        spco2: { label: "Seawater pCO₂ (µatm)", color: "#f472b6", bg: "rgba(244,114,182,0.15)" }
       };
       const cfg = metaMap[vKey];
       if (!cfg || !src) return;
@@ -265,6 +267,10 @@
         sugText = isIncreasing
           ? `💡 Suggestion (${periodTxt}): Atmospheric CO₂ rose (+${delta.toFixed(2)} ppm), accelerating ocean warming & acidification. Protecting seagrass preserves vital Blue Carbon sinks.`
           : `💡 Suggestion (${periodTxt}): CO₂ showed a slight dip in this short window; long-term Blue Carbon conservation remains critical.`;
+      } else if (vKey === "spco2") {
+        sugText = isIncreasing
+          ? `💡 Suggestion (${periodTxt}): Surface seawater pCO₂ increased (+${delta.toFixed(2)} µatm), indicating rising ocean acidification pressure. Seagrass meadows help buffer coastal pH.`
+          : `💡 Suggestion (${periodTxt}): Seawater pCO₂ decreased (${delta.toFixed(2)} µatm) in this window; continue monitoring coastal carbonate chemistry.`;
       }
       document.getElementById("trendSuggestion").textContent = sugText;
     }

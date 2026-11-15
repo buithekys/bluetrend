@@ -42,6 +42,40 @@ def load_giovanni_2003_2024(filepath: str) -> dict:
     }
 
 
+def load_copernicus_spco2(filepath: str = "data/incoming/seawater_pco2_southeast_asia_2003_2024.csv.csv") -> dict:
+    df = pd.read_csv(filepath, comment="#")
+    df.columns = ["time", "value"]
+    df["time"] = pd.to_datetime(df["time"]).dt.tz_localize(None)
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+    df = df[df["time"] >= "2003-01-01"].dropna().sort_values("time")
+
+    y = df["value"].to_numpy(dtype=float)
+    mk_res = mk.original_test(y, alpha=0.05)
+    sen_yr = float(mk_res.slope) * 12.0
+
+    df["year"] = df["time"].dt.year
+    annual = df.groupby("year")["value"].mean().reset_index()
+    years = annual["year"].to_list()
+    vals = [round(float(v), 2) for v in annual["value"].to_list()]
+
+    last_val = vals[-1]
+    proj_years = [2025, 2026, 2027]
+    proj_vals = [round(last_val + sen_yr * (i + 1), 2) for i in range(3)]
+
+    return {
+        "n_months": len(df),
+        "time_start": str(df["time"].min().date()),
+        "time_end": str(df["time"].max().date()),
+        "sen_slope_yr": round(sen_yr, 4),
+        "p_value": round(float(mk_res.p), 6),
+        "significant": bool(mk_res.p < 0.05),
+        "annual_years": years,
+        "annual_vals": vals,
+        "proj_years": proj_years,
+        "proj_vals": proj_vals,
+    }
+
+
 def sample_nc_at_points(nc_path: str, var_name: str, lons: np.ndarray, lats: np.ndarray) -> np.ndarray:
     ds = xr.open_dataset(nc_path)
     da = ds[var_name]
@@ -99,6 +133,7 @@ def main():
     kd_summary = region_series["sea"]["kd490"]
     gpm_summary = region_series["sea"]["gpm"]
     co2_summary = region_series["sea"]["co2"]
+    spco2_summary = load_copernicus_spco2() if os.path.exists("data/incoming/seawater_pco2_southeast_asia_2003_2024.csv.csv") else None
 
     # 2. Existing 15-series trend results
     trends_df = pd.read_csv("outputs/statistics/trend_results_all.csv")
@@ -169,6 +204,7 @@ def main():
         "kd490_2003_2024": kd_summary,
         "gpm_2003_2024": gpm_summary,
         "co2_airs": co2_summary,
+        "spco2_2003_2024": spco2_summary,
         "trends": trends_list,
         "watersheds_geojson": watersheds_geojson,
         "seagrass_hotspots": seagrass_points,
