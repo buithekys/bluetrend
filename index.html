@@ -115,9 +115,11 @@
     const medRisk = D.seagrass_hotspots.filter(x => x.risk === "Medium");
     const lowRisk = D.seagrass_hotspots.filter(x => x.risk === "Low");
     document.getElementById("kpi-high-risk").textContent = `${highRisk.length} / ${D.seagrass_hotspots.length}`;
+    const co2 = D.co2_airs;
+    const co2Note = co2 ? ` Regional CO₂ (AIRS 2010–2017): +${co2.sen_slope_yr.toFixed(2)} ppm/yr (p=${co2.p_value}).` : "";
     document.getElementById("kpi-insight").textContent = sst.significant
-      ? `SEA SST shows a statistically significant warming trend over 22 years (+${(sst.sen_slope_yr * 22).toFixed(2)}°C). ${highRisk.length} major seagrass meadows face dual SST & turbidity stress.`
-      : `No monotonic regional SST trend detected; prioritize monitoring ${highRisk.length} local high-risk hotspots.`;
+      ? `SEA SST shows a statistically significant warming trend over 22 years (+${(sst.sen_slope_yr * 22).toFixed(2)}°C). ${highRisk.length} major seagrass meadows face dual SST & turbidity stress.${co2Note}`
+      : `No monotonic regional SST trend detected; prioritize monitoring ${highRisk.length} local high-risk hotspots.${co2Note}`;
 
     // Leaflet Map (Free Esri World Imagery satellite tiles - No API key, no disputed labels)
     const map = L.map("map").setView([8, 112], 4);
