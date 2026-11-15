@@ -59,13 +59,46 @@ def sample_nc_at_points(nc_path: str, var_name: str, lons: np.ndarray, lats: np.
 def main():
     os.makedirs("outputs/exports", exist_ok=True)
 
-    # 1. 22-year trends (SST, Kd490, Precipitation)
-    sst_summary = load_giovanni_2003_2024("data/incoming/SST.2003-2024.csv")
+    # 1. Regional 22-year trends (4 regions x 4 variables)
+    region_files = {
+        "sea": {
+            "sst": "data/incoming/SST.2003-2024.csv",
+            "kd490": "data/incoming/Kd490.2003-2024.csv",
+            "gpm": "data/incoming/prec-rain.2003-2024.csv",
+            "co2": "data/incoming/Input AIRS3C2M.csv",
+        },
+        "mekong": {
+            "sst": "data/incoming/sst2003-2024_mekong.csv",
+            "kd490": "data/incoming/kd490_2003-2024_mekong.csv",
+            "gpm": "data/incoming/GPM_rain_2003-2024_mekong.csv",
+            "co2": "data/incoming/co2_2003-2024_mekong.csv",
+        },
+        "tonkin": {
+            "sst": "data/incoming/sst_gulf_of_tonkin_2003_2024.csv.csv",
+            "kd490": "data/incoming/kd490_gulf_of_tonkin_2003_2024.csv.csv",
+            "gpm": "data/incoming/gpm_gulf_of_tonkin_2003_2024.csv.csv",
+            "co2": "data/incoming/co2_gulf_of_tonkin_2003_2024.csv.csv",
+        },
+        "malacca": {
+            "sst": "data/incoming/SST_2003-2024_Malacca.csv",
+            "kd490": "data/incoming/KD_2003-2024_Malacca.csv",
+            "gpm": "data/incoming/GPM_2003-2024_Malacca.csv",
+            "co2": "data/incoming/Co2_2003-2024_Malacca.csv",
+        },
+    }
+    region_series = {}
+    for rkey, vmap in region_files.items():
+        region_series[rkey] = {
+            vkey: load_giovanni_2003_2024(fpath) if os.path.exists(fpath) else None
+            for vkey, fpath in vmap.items()
+        }
+
+    sst_summary = region_series["sea"]["sst"]
     sst_summary["annual_sst"] = sst_summary["annual_vals"]
     sst_summary["proj_sst"] = sst_summary["proj_vals"]
-    kd_summary = load_giovanni_2003_2024("data/incoming/Kd490.2003-2024.csv") if os.path.exists("data/incoming/Kd490.2003-2024.csv") else None
-    gpm_summary = load_giovanni_2003_2024("data/incoming/prec-rain.2003-2024.csv") if os.path.exists("data/incoming/prec-rain.2003-2024.csv") else None
-    co2_summary = load_giovanni_2003_2024("data/incoming/Input AIRS3C2M.csv") if os.path.exists("data/incoming/Input AIRS3C2M.csv") else None
+    kd_summary = region_series["sea"]["kd490"]
+    gpm_summary = region_series["sea"]["gpm"]
+    co2_summary = region_series["sea"]["co2"]
 
     # 2. Existing 15-series trend results
     trends_df = pd.read_csv("outputs/statistics/trend_results_all.csv")
@@ -131,6 +164,7 @@ def main():
             "displayed_hotspots": len(seagrass_points),
             "total_watersheds": len(ws_gdf),
         },
+        "region_series": region_series,
         "sst_2003_2024": sst_summary,
         "kd490_2003_2024": kd_summary,
         "gpm_2003_2024": gpm_summary,

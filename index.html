@@ -182,6 +182,7 @@
       malacca: { name: "Strait of Malacca", center: [3.0, 101.0], zoom: 6, bbox: [1.0, 97.5, 6.0, 103.5], trendId: "marine_05" }
     };
 
+    let currentRegion = "sea";
     const sst = D.sst_2003_2024;
     const co2 = D.co2_airs;
     const co2Note = co2 ? ` Regional CO₂ (AIRS 2010–2017): +${co2.sen_slope_yr.toFixed(2)} ppm/yr (p=${co2.p_value}).` : "";
@@ -197,16 +198,18 @@
       const yFrom = parseInt(document.getElementById("yearFrom").value, 10) || 2003;
       const yTo = parseInt(document.getElementById("yearTo").value, 10) || 2024;
 
+      const regObj = (D.region_series && D.region_series[currentRegion]) ? D.region_series[currentRegion] : null;
+      const fallbackMap = { sst: D.sst_2003_2024, kd490: D.kd490_2003_2024, gpm: D.gpm_2003_2024, co2: D.co2_airs };
+      const src = (regObj && regObj[vKey]) ? regObj[vKey] : fallbackMap[vKey];
+
       const metaMap = {
-        sst: { obj: D.sst_2003_2024, label: "SST (°C)", color: "#38bdf8", bg: "rgba(56,189,248,0.15)" },
-        kd490: { obj: D.kd490_2003_2024, label: "Kd490 (m⁻¹)", color: "#a78bfa", bg: "rgba(167,139,250,0.15)" },
-        gpm: { obj: D.gpm_2003_2024, label: "Precipitation (mm/mth)", color: "#34d399", bg: "rgba(52,211,153,0.15)" },
-        co2: { obj: D.co2_airs, label: "CO₂ (ppm)", color: "#fb923c", bg: "rgba(251,146,60,0.15)" }
+        sst: { label: "SST (°C)", color: "#38bdf8", bg: "rgba(56,189,248,0.15)" },
+        kd490: { label: "Kd490 (m⁻¹)", color: "#a78bfa", bg: "rgba(167,139,250,0.15)" },
+        gpm: { label: "Precipitation (mm/mth)", color: "#34d399", bg: "rgba(52,211,153,0.15)" },
+        co2: { label: "CO₂ (ppm)", color: "#fb923c", bg: "rgba(251,146,60,0.15)" }
       };
       const cfg = metaMap[vKey];
-      if (!cfg || !cfg.obj) return;
-
-      const src = cfg.obj;
+      if (!cfg || !src) return;
       const rawVals = src.annual_vals || src.annual_sst || [];
       const projVals = src.proj_vals || src.proj_sst || [];
 
@@ -309,8 +312,13 @@
     });
 
     function selectRegion(key) {
-      const reg = REGIONS[key] || REGIONS.sea;
+      currentRegion = key in REGIONS ? key : "sea";
+      const reg = REGIONS[currentRegion];
       map.flyTo(reg.center, reg.zoom, { duration: 1.0 });
+
+      const regSst = (D.region_series && D.region_series[currentRegion] && D.region_series[currentRegion].sst) ? D.region_series[currentRegion].sst : sst;
+      document.getElementById("kpi-sst-slope").textContent = (regSst.sen_slope_yr >= 0 ? "+" : "") + regSst.sen_slope_yr.toFixed(4) + " °C/yr";
+      document.getElementById("kpi-sst-p").textContent = `p = ${regSst.p_value} (${regSst.significant ? "Significant" : "Not significant"})`;
 
       const [sLat, wLon, nLat, eLon] = reg.bbox;
       const pts = D.seagrass_hotspots.filter(p => p.lat >= sLat && p.lat <= nLat && p.lon >= wLon && p.lon <= eLon);
@@ -334,6 +342,7 @@
         riskMsg = `✅ Resilient (${reg.name}): Low-risk meadows dominate. Maintain current protection as natural seed-bank buffers for surrounding reefs.`;
       }
       document.getElementById("riskSuggestion").textContent = riskMsg;
+      updateTrendChart();
 
       const tr = reg.trendId ? D.trends.find(t => t.basin_id === reg.trendId) : null;
       if (tr) {
